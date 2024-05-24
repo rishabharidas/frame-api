@@ -6,5 +6,6 @@ for development use
 cargo run
 ```
 
-checkout more about usage of rocket at [rocket](https://rocket.rs/)
-checkout more on rust at [Rust](https://www.rust-lang.org/)
+Checkout more about usage of rocket at [rocket](https://rocket.rs/).
+
+Checkout more on rust at [Rust](https://www.rust-lang.org/).
