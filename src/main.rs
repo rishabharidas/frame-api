@@ -1,5 +1,5 @@
-
-use rocket::serde::{json::Json, Serialize};
+use rocket::http::Status;
+use rocket::serde::json::{json, Value};
 
 #[macro_use]
 extern crate rocket;
@@ -23,33 +23,21 @@ fn index() -> String {
     String::from("Hello World")
 }
 
-#[derive(Serialize)]
-struct DataResponse {
-    data: ImageData,
-}
-
-#[derive(Serialize)]
-struct ImageData {
-    images: &'static [&'static str],
-}
-
 #[get("/")]
-fn all_images() -> Json<DataResponse> {
-    let response = DataResponse {
-        data: ImageData { images: IMAGES },
-    };
-    Json(response)
+fn all_images() -> Result<Value, Status> {
+    Ok(json!({
+        "images": IMAGES
+    }))
 }
 
 #[get("/<_id>")]
-fn get_image(_id: usize) -> Option<Json<&'static str>> {
-    if IMAGES[_id].len() > 0 {
-        print!("tetstdtst")
-    }
-    if let Some(url) = IMAGES.get(_id) {
-        Some(Json(*url))
+fn get_image(_id: usize) -> Result<Value, Status> {
+    if _id >= IMAGES.len() {
+        Ok(json!({
+            "url": IMAGES[_id]
+        }))
     } else {
-        None
+        return Err(Status::NoContent);
     }
 }
 
