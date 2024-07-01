@@ -1,16 +1,17 @@
-use crate::db::client::connect_to_db;
-// use mongodb::{bson::doc, bson::Document, Collection};
-use tokio;
+use mongodb::{
+    Database, bson::Document
+};
+use futures::TryStreamExt;
 
-#[tokio::main]
-pub async fn get_products() {
-    let connection = connect_to_db().await;
-
-
-
-    // for item in documents {
-    //     println!("{:?}", item)
-    // }
+pub async fn get_products(connect: &Database) -> Result<(), mongodb::error::Error> {
+    let collection: mongodb::Collection<Document> = connect.collection("frame_products");
+    let mut cursor = collection.find(None, None).await?;
+    
+    while let Some(doc) = cursor.try_next().await? {
+        println!("{:?}", doc);
+    }
 
     println!("test ing");
+    Ok(())
 }
+

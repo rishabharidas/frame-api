@@ -25,7 +25,7 @@ pub async fn connect_to_db() -> mongodb::error::Result<Database> {
     let client = Client::with_options(client_options)?;
     client
         .database("frame_data")
-        .run_command(doc! { "ping": 1 })
+        .run_command(doc! { "ping": 1 }, None)
         .await?;
     let connection = client.database("frame_data");
 
