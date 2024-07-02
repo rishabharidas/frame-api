@@ -11,11 +11,15 @@ pub async fn connect_to_db() -> mongodb::error::Result<Database> {
     dotenv().ok();
     let mongo_password = env::var("MONGO_PASS").expect("password env available not found");
     let mongo_user = env::var("MONGO_USER").expect("user env available not found");
+    let mongo_app_name = env::var("MONGO_APP_NAME").expect("mongo app name not found");
+    let mongo_domain = env::var("MONGO_DOMAIN").expect("mongo domain not found");
 
     let uri = format!(
-        "mongodb+srv://{}:{}@frame-server.drkkkcv.mongodb.net/?retryWrites=true&w=majority&appName=frame-server",
+        "mongodb+srv://{}:{}@{}/?retryWrites=true&w=majority&appName={}",
         encode(&mongo_user),
-        encode(&mongo_password)
+        encode(&mongo_password),
+        encode(&mongo_domain),
+        encode(&mongo_app_name)
     );
     let mut client_options = ClientOptions::parse(&uri).await?;
 

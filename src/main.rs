@@ -1,10 +1,9 @@
+use mongodb::Database;
 use rocket::http::Status;
 use rocket::serde::json::{json, Value};
+use rocket::State;
 use std::fs::File;
 use std::io::prelude::*;
-use mongodb::Database;
-use rocket::State;
-
 
 #[macro_use]
 extern crate rocket;
@@ -26,12 +25,7 @@ fn index() -> String {
 }
 
 #[get("/")]
-async fn all_images(connection: &State<Database>) -> Result<Value, Status> {
-    if let Err(err) = service::get::get_products(connection.inner()).await {
-        eprintln!("Error getting products: {:?}", err);
-        return Err(Status::InternalServerError);
-    }
-
+async fn all_images() -> Result<Value, Status> {
     let images_data = get_file_data();
     Ok(serde_json::json!({"images": images_data}))
 }
@@ -44,6 +38,14 @@ fn get_image(_id: usize) -> Result<Value, Status> {
     }))
 }
 
+#[get("/")]
+async fn all_products(connection: &State<Database>) -> Result<Value, Status> {
+    let products = service::get::get_products(connection).await;
+    Ok(json!({
+        "products" :products.unwrap()
+    }))
+}
+
 #[launch]
 async fn rocket() -> _ {
     let connection = db::client::connect_to_db().await.unwrap();
@@ -52,4 +54,5 @@ async fn rocket() -> _ {
         .manage(connection)
         .mount("/", routes![index])
         .mount("/images", routes![all_images, get_image])
+        .mount("/products", routes![all_products])
 }
