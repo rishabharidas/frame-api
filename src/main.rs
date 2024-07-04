@@ -45,6 +45,13 @@ async fn all_products(connection: &State<Database>) -> Result<Value, Status> {
         "products" :products.unwrap()
     }))
 }
+#[get("/<id>")]
+async fn get_product(connection: &State<Database>, id: &str) -> Result<Value, Status> {
+    let product_detail = service::get::get_product_info(connection, id).await;
+    Ok(json!(
+        product_detail.unwrap()
+    ))
+}
 
 #[launch]
 async fn rocket() -> _ {
@@ -54,5 +61,5 @@ async fn rocket() -> _ {
         .manage(connection)
         .mount("/", routes![index])
         .mount("/images", routes![all_images, get_image])
-        .mount("/products", routes![all_products])
+        .mount("/products", routes![all_products, get_product])
 }

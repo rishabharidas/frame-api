@@ -1,13 +1,13 @@
 pub mod get;
 
-use mongodb::bson::oid::ObjectId;
+use mongodb::bson::serde_helpers::serialize_hex_string_as_object_id;
 use rocket::serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-pub struct ProductInfo {
-    #[serde(rename = "_id")]
-    pub _id: ObjectId,
+pub struct ProductJson {
+    #[serde(serialize_with = "serialize_hex_string_as_object_id")]
+    pub id: String,
     pub name: String,
     pub category: Vec<String>,
     pub price: String,
