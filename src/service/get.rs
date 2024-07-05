@@ -21,13 +21,14 @@ fn generate_product_data(doc: Document) -> ProductJson {
         },
         category: Vec::new(),
     };
+    let rating_data = doc.get_document("rating_data").unwrap();
     product_data.id = doc.get_object_id("_id").unwrap().to_string();
     product_data.name = doc.get_str("name").unwrap_or("").to_string();
     product_data.description = doc.get_str("description").unwrap_or("").to_string();
     product_data.price = doc.get_str("price").unwrap_or("").to_string();
     product_data.rating_data = Rating {
-        count: doc.get_i64("rating_count").unwrap_or(0),
-        rating: doc.get_i64("rating").unwrap_or(0),
+        count: rating_data.get_i64("count").unwrap(),
+        rating: rating_data.get_i64("rating").unwrap(),
     };
     product_data.category = doc
         .get_array("category")

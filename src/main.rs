@@ -1,7 +1,11 @@
 use mongodb::Database;
-use rocket::http::Status;
-use rocket::serde::json::{json, Value};
-use rocket::State;
+use rocket::{
+    http::Status,
+    serde::json::{self, json, Value},
+    State,
+};
+
+use service::ProductBody;
 use std::fs::File;
 use std::io::prelude::*;
 
@@ -48,9 +52,16 @@ async fn all_products(connection: &State<Database>) -> Result<Value, Status> {
 #[get("/<id>")]
 async fn get_product(connection: &State<Database>, id: &str) -> Result<Value, Status> {
     let product_detail = service::get::get_product_info(connection, id).await;
-    Ok(json!(
-        product_detail.unwrap()
-    ))
+    Ok(json!(product_detail.unwrap()))
+}
+
+#[post("/", format = "json", data = "<body>")]
+async fn insert_product(
+    connection: &State<Database>,
+    body: json::Json<ProductBody>,
+) -> Result<Value, Status> {
+    let insert_reponse = service::post::add_product(connection, body).await.unwrap();
+    Ok(json!(insert_reponse.unwrap().inserted_id))
 }
 
 #[launch]
@@ -61,5 +72,8 @@ async fn rocket() -> _ {
         .manage(connection)
         .mount("/", routes![index])
         .mount("/images", routes![all_images, get_image])
-        .mount("/products", routes![all_products, get_product])
+        .mount(
+            "/products",
+            routes![all_products, get_product, insert_product],
+        )
 }
